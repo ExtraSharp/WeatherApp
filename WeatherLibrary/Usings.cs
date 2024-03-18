@@ -1,0 +1,10 @@
+﻿global using RestSharp;
+global using System.Collections.Generic;
+global using WeatherLibrary.Models;
+global using WeatherLibrary.Interfaces;
+global using System.Data;
+global using System.Data.SqlClient;
+global using Dapper;
+global using System.Data.SQLite;
+global using System.Text.Json.Serialization;
+global using Microsoft.Extensions.Configuration;

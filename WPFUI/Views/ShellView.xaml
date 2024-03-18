@@ -81,6 +81,7 @@
             </StackPanel>            
         </StackPanel>
         
+        
         <lvc:CartesianChart Grid.Column="2" Grid.Row="2" MinHeight="300" Series="{Binding SeriesCollection}" Margin="20 40 20 20"
                             VerticalAlignment="Top" LegendLocation="Right" cal:Message.Attach="[Event DataClick] = [Action OnChartDataClick()]" 
                             Visibility="{Binding IsChartVisible, Converter={StaticResource BooleanToVisibilityConverter}}">

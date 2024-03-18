@@ -9,12 +9,11 @@ global using Microsoft.Extensions.Configuration;
 global using System.IO;
 global using System.Windows.Input;
 global using System.Windows.Media;
-global using WeatherLibrary;
+
 global using WeatherLibrary.Models;
 global using System.Windows.Data;
 global using System.Globalization;
 global using Microsoft.Win32;
-global using System.Reflection.Metadata.Ecma335;
 global using System.Windows.Media.Imaging;
 global using WeatherLibrary.ApiAccess;
 global using WeatherLibrary.Services.Helpers;

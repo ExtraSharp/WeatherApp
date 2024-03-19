@@ -163,8 +163,15 @@ public class ClimateChartViewModel : Screen
             }
         }
 
-        var chartData = _calculationService.CalculateChartData(filteredMonths);
+        List<ClimateChartModel> chartData = _calculationService.CalculateChartData(filteredMonths);
 
+        CreateHeatSeries(chartData);
+
+        UpdateYAxisLabels();
+    }
+
+    private void CreateHeatSeries(List<ClimateChartModel> chartData)
+    {
         var recordHighs = new ChartValues<HeatPoint>();
         var recordLows = new ChartValues<HeatPoint>();
         var dailyMaxValues = new ChartValues<HeatPoint>();
@@ -174,39 +181,42 @@ public class ClimateChartViewModel : Screen
         var meanMinValues = new ChartValues<HeatPoint>();
         //var precipitationValues = new ChartValues<HeatPoint>();
 
-        PopulateHeatPointValues(recordHighs, recordLows, dailyMaxValues,
-                                dailyMeanValues, dailyMinValues, meanMaxValues, meanMinValues, chartData);
+        PopulateHeatPointValues(recordHighs, recordLows, dailyMaxValues, dailyMeanValues, dailyMinValues, meanMaxValues, meanMinValues, chartData);
 
-        AddHeatSeries("Record High", recordHighs);
-        AddHeatSeries("Mean Maximum", meanMaxValues);
-        AddHeatSeries("Mean Daily Max", dailyMaxValues);
-        AddHeatSeries("Daily Mean", dailyMeanValues);
-        AddHeatSeries("Mean Daily Min", dailyMinValues);
-        AddHeatSeries("Mean Minimum", meanMinValues);
-        AddHeatSeries("Record Low", recordLows);
-        //AddHeatSeries("Precipitation", precipitationValues); 
-        //AddHeatSeries("Sunshine Hours", new ChartValues<HeatPoint>()); // Add other series
+        Dictionary<string, ChartValues<HeatPoint>> seriesData = new Dictionary<string, ChartValues<HeatPoint>>()
+        {
+            { "Record High", recordHighs },
+            { "Mean Maximum", meanMaxValues },
+            { "Mean Daily Max", dailyMaxValues },
+            { "Daily Mean", dailyMeanValues },
+            { "Mean Daily Min", dailyMinValues },
+            { "Mean Minimum", meanMinValues },
+            { "Record Low", recordLows }
+        };
 
-        UpdateYAxisLabels();
+        foreach (var data in seriesData)
+        {
+            AddHeatSeries(data.Key, data.Value);
+        }
     }
 
     private void PopulateHeatPointValues(ChartValues<HeatPoint> recordHighs, ChartValues<HeatPoint> recordLows,
                                      ChartValues<HeatPoint> dailyMaxValues, ChartValues<HeatPoint> dailyMeanValues,
                                      ChartValues<HeatPoint> dailyMinValues, ChartValues<HeatPoint> meanMaxValues,
-                                     ChartValues<HeatPoint> meanMinValues, List<ClimateChartModel> test)
+                                     ChartValues<HeatPoint> meanMinValues, List<ClimateChartModel> chartData)
     {
 
-        for (int i = 0; i < test.Count(); i++)
+        for (int i = 0; i < chartData.Count(); i++)
         {
             try
             {
-                recordHighs.Add(new HeatPoint(i, 6, double.Parse(test[i].RecordHigh.ToString("0.0"))));
-                meanMaxValues.Add(new HeatPoint(i, 5, double.Parse(test[i].MeanMax.ToString("0.0"))));
-                dailyMaxValues.Add(new HeatPoint(i, 4, double.Parse(test[i].MeanDailyMax.ToString("0.0"))));
-                dailyMeanValues.Add(new HeatPoint(i, 3, double.Parse(test[i].DailyMean.ToString("0.0"))));
-                dailyMinValues.Add(new HeatPoint(i, 2, double.Parse(test[i].MeanDailyMin.ToString("0.0"))));
-                meanMinValues.Add(new HeatPoint(i, 1, double.Parse(test[i].MeanMin.ToString("0.0"))));
-                recordLows.Add(new HeatPoint(i, 0, double.Parse(test[i].RecordLow.ToString("0.0"))));
+                recordHighs.Add(new HeatPoint(i, 6, double.Parse(chartData[i].RecordHigh.ToString("0.0"))));
+                meanMaxValues.Add(new HeatPoint(i, 5, double.Parse(chartData[i].MeanMax.ToString("0.0"))));
+                dailyMaxValues.Add(new HeatPoint(i, 4, double.Parse(chartData[i].MeanDailyMax.ToString("0.0"))));
+                dailyMeanValues.Add(new HeatPoint(i, 3, double.Parse(chartData[i].DailyMean.ToString("0.0"))));
+                dailyMinValues.Add(new HeatPoint(i, 2, double.Parse(chartData[i].MeanDailyMin.ToString("0.0"))));
+                meanMinValues.Add(new HeatPoint(i, 1, double.Parse(chartData[i].MeanMin.ToString("0.0"))));
+                recordLows.Add(new HeatPoint(i, 0, double.Parse(chartData[i].RecordLow.ToString("0.0"))));
             }
             catch (Exception)
             {

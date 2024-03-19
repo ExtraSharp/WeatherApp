@@ -429,6 +429,11 @@ public class ShellViewModel : Conductor<object>
 
     public void OpenClimateChartView()
     {
+        if (_isNoDataVisible == true)
+        {
+            MessageBox.Show("Please add some data first", "No Data to display", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+        
         var climateChartViewModel = new ClimateChartViewModel(_dataRepository);
         _windowManager.ShowWindowAsync(climateChartViewModel);
     }

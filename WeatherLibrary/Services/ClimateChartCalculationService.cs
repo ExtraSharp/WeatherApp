@@ -1,14 +1,17 @@
-﻿namespace WeatherLibrary.Services;
+﻿using System.Collections.Generic;
+
+namespace WeatherLibrary.Services;
 public class ClimateChartCalculationService
 {
     public List<ClimateChartModel> CalculateChartData(List<List<DayModel>> allMonths)
     {
         List<ClimateChartModel> output = CalculateMonthlyStatistics(allMonths);
         List<ClimateChartModel> monthlyDataWithEmpty = AddEmptyData(output);
-        ClimateChartModel yearTotals = GetYearlyData(output);
+
+        ClimateChartModel yearTotals = GetYearTotals(output, allMonths);
         output = monthlyDataWithEmpty;
         output.Add(yearTotals);
-        // hello
+        
         return output;
     }
 
@@ -20,7 +23,7 @@ public class ClimateChartCalculationService
         {
             ClimateChartModel statistics = new ClimateChartModel
             {
-                Month = monthData.First().Month, // Assuming all days in a month have the same month value
+                Month = monthData.First().Month,
                 RecordHigh = monthData.Any() ? monthData.Max(x => x.MaxTemp) : 0,
                 MeanDailyMax = monthData.Any() ? monthData.Average(x => x.MaxTemp) : 0,
                 DailyMean = monthData.Any() ? monthData.Average(x => x.MeanTemp) : 0,
@@ -69,17 +72,17 @@ public class ClimateChartCalculationService
         return output;
     }
 
-    private ClimateChartModel GetYearlyData(List<ClimateChartModel> overallStatistics)
+    private ClimateChartModel GetYearTotals(List<ClimateChartModel> overallStatistics, List<List<DayModel>> allMonths)
     {
         ClimateChartModel output = new ClimateChartModel
         {
             Month = 0, // Set to 0 as it's not used for overall statistics
             RecordHigh = overallStatistics.Any() ? overallStatistics.Max(x => x.RecordHigh) : 0,
-            MeanMax = overallStatistics.Any() ? overallStatistics.Average(x => x.MeanMax) : 0,
+            MeanMax = CalculateYearlyMeans(allMonths, "max"),
             MeanDailyMax = overallStatistics.Any() ? overallStatistics.Average(x => x.MeanDailyMax) : 0,
             DailyMean = overallStatistics.Any() ? overallStatistics.Average(x => x.DailyMean) : 0,
             MeanDailyMin = overallStatistics.Any() ? overallStatistics.Average(x => x.MeanDailyMin) : 0,
-            MeanMin = overallStatistics.Any() ? overallStatistics.Average(x => x.MeanMin) : 0,
+            MeanMin = CalculateYearlyMeans(allMonths, "min"),
             RecordLow = overallStatistics.Any() ? overallStatistics.Min(x => x.RecordLow) : 0
         };
 
@@ -104,4 +107,26 @@ public class ClimateChartCalculationService
 
         return meanMonthlyTemp;
     }
+    private double CalculateYearlyMeans(List<List<DayModel>> allMonths, string minMax)
+    {
+        List<double> yearlyTemps = minMax == "max" ?
+            allMonths.SelectMany(x => x)
+                     .GroupBy(day => day.Year)
+                     .Where(group => group.Count() >= 365) // Filter only years with at least 365 days
+                     .Select(group => group.Max(day => day.MaxTemp))
+                     .ToList() :
+            allMonths.SelectMany(x => x)
+                     .GroupBy(day => day.Year)
+                     .Where(group => group.Count() >= 365) // Filter only years with at least 365 days
+                     .Select(group => group.Min(day => day.MinTemp))
+                     .ToList();
+
+        double overallYearlyMean = yearlyTemps.Any() ? yearlyTemps.Average() : 0;
+
+        return overallYearlyMean;
+    }
+
+
+
+
 }

@@ -1,4 +1,4 @@
-# WetterAppSolution
+# WeatherApp
 
 .csv files have to be in this format:
 

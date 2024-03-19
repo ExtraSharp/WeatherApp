@@ -2,36 +2,20 @@
 public class ClimateChartViewModel : Screen
 {
     #region Private Members
-    private BindableCollection<MonthModel> _availableMonths = new();
     private readonly IDataRepository _dataRepository;
     private readonly DataFetchingService _dataFetchingService;
-    private readonly ClimateChartCalculationService _calculationService;
-    private SeriesCollection _heatMapSeries;
-    private BindableCollection<int> _availableYears;
-    private MonthModel _dataFromSelectedItem;
-    private MonthModel _dataToSelectedItem;
+    private SeriesCollection? _heatMapSeries;
+    private BindableCollection<int>? _availableYears;
+    private MonthModel? _dataFromSelectedItem;
+    private MonthModel? _dataToSelectedItem;
     private int _dataFromSelectedYear;
     private int _dataToSelectedYear;
     #endregion
 
     #region Public Properties
-    public BindableCollection<MonthModel> AvailableMonths
+    public SeriesCollection? HeatMapSeries
     {
-        get { return _availableMonths; }
-        set
-        {
-            _availableMonths = value;
-            NotifyOfPropertyChange(() => AvailableMonths);
-
-        }
-    }
-
-    public SeriesCollection HeatMapSeries
-    {
-        get
-        {
-            return _heatMapSeries;
-        }
+        get => _heatMapSeries;
         set
         {
             _heatMapSeries = value;
@@ -39,20 +23,21 @@ public class ClimateChartViewModel : Screen
         }
     }
 
-    public List<string> YAxisLabels { get; set; }
+    public List<string>? YAxisLabels { get; set; }
 
     public Func<double, string> XAxisLabelFormatter { get; } = value =>
     {
-        var months = new string[] { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec", "Year" };
-        if (value >= 0 && value < 13)
+        var months = new[] { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec", "Year" };
+        if (value is >= 0 and < 13)
             return months[(int)value];
         return "";
     };
 
     public Func<double, string> YAxisLabelFormatter { get; } = value => $"{value} °C";
-    public BindableCollection<int> AvailableYears
+
+    public BindableCollection<int>? AvailableYears
     {
-        get { return _availableYears; }
+        get => _availableYears;
         set
         {
             _availableYears = value;
@@ -60,9 +45,9 @@ public class ClimateChartViewModel : Screen
         }
     }
 
-    public MonthModel DataFromSelectedItem
+    public MonthModel? DataFromSelectedItem
     {
-        get { return _dataFromSelectedItem; }
+        get => _dataFromSelectedItem;
         set
         {
             _dataFromSelectedItem = value;
@@ -72,7 +57,7 @@ public class ClimateChartViewModel : Screen
 
     public int DataFromSelectedYear
     {
-        get { return _dataFromSelectedYear; }
+        get => _dataFromSelectedYear;
         set
         {
             _dataFromSelectedYear = value;
@@ -82,7 +67,7 @@ public class ClimateChartViewModel : Screen
 
     public int DataToSelectedYear
     {
-        get { return _dataToSelectedYear; }
+        get => _dataToSelectedYear;
         set
         {
             _dataToSelectedYear = value;
@@ -90,9 +75,9 @@ public class ClimateChartViewModel : Screen
         }
     }
 
-    public MonthModel DataToSelectedItem
+    public MonthModel? DataToSelectedItem
     {
-        get { return _dataToSelectedItem; }
+        get => _dataToSelectedItem;
         set
         {
             _dataToSelectedItem = value;
@@ -105,7 +90,6 @@ public class ClimateChartViewModel : Screen
     public ClimateChartViewModel(IDataRepository dataRepository)
     {
         _dataRepository = dataRepository;
-        _calculationService = new ClimateChartCalculationService();
         _dataFetchingService = new DataFetchingService(_dataRepository);
         HeatMapSeries = new SeriesCollection();
 
@@ -115,18 +99,15 @@ public class ClimateChartViewModel : Screen
     #endregion
 
     #region Methods
-
     private void WireUpRangeSelectors()
     {
         var months = _dataRepository.GetAvailableMonths();
         var distinctYears = months.Select(m => m.Year).Distinct().ToList();
         AvailableYears = new BindableCollection<int>(distinctYears);
 
-        if (AvailableYears.Any())
-        {
-            DataFromSelectedYear = AvailableYears.First();
-            DataToSelectedYear = AvailableYears.Last();
-        }
+        if (!AvailableYears.Any()) return;
+        DataFromSelectedYear = AvailableYears.First();
+        DataToSelectedYear = AvailableYears.Last();
     }
 
     public void UseFilter()
@@ -141,29 +122,18 @@ public class ClimateChartViewModel : Screen
         }
     }
 
-    public bool IsValidDateRange()
+    private bool IsValidDateRange()
     {
         return DataFromSelectedYear <= DataToSelectedYear;
     }
 
     private void PopulateData()
     {
-        HeatMapSeries.Clear();
-        List<List<DayModel>> allMonths = _dataFetchingService.GetAllMonths();
-        List<List<DayModel>> filteredMonths = new List<List<DayModel>>();
+        HeatMapSeries?.Clear();
+        var allMonths = _dataFetchingService.GetAllMonths();
+        var filteredMonths = allMonths.Select(month => month.Where(day => day.Year >= DataFromSelectedYear && day.Year <= DataToSelectedYear).ToList()).Where(filteredDays => filteredDays.Count > 0).ToList();
 
-        foreach (var month in allMonths)
-        {
-            List<DayModel> filteredDays = month.Where(day => day.Year >= DataFromSelectedYear && day.Year <= DataToSelectedYear).ToList();
-
-            // Skip empty months if you don't want to include them
-            if (filteredDays.Count > 0)
-            {
-                filteredMonths.Add(filteredDays);
-            }
-        }
-
-        List<ClimateChartModel> chartData = _calculationService.CalculateChartData(filteredMonths);
+        var chartData = ClimateChartCalculationService.CalculateChartData(filteredMonths);
 
         CreateHeatSeries(chartData);
 
@@ -200,13 +170,13 @@ public class ClimateChartViewModel : Screen
         }
     }
 
-    private void PopulateHeatPointValues(ChartValues<HeatPoint> recordHighs, ChartValues<HeatPoint> recordLows,
+    private static void PopulateHeatPointValues(ChartValues<HeatPoint> recordHighs, ChartValues<HeatPoint> recordLows,
                                      ChartValues<HeatPoint> dailyMaxValues, ChartValues<HeatPoint> dailyMeanValues,
                                      ChartValues<HeatPoint> dailyMinValues, ChartValues<HeatPoint> meanMaxValues,
                                      ChartValues<HeatPoint> meanMinValues, List<ClimateChartModel> chartData)
     {
 
-        for (int i = 0; i < chartData.Count(); i++)
+        for (var i = 0; i < chartData.Count; i++)
         {
             try
             {
@@ -220,13 +190,14 @@ public class ClimateChartViewModel : Screen
             }
             catch (Exception)
             {
+                // ignored
             }
         }
     }
 
     private void AddHeatSeries(string title, ChartValues<HeatPoint> values)
     {
-        HeatMapSeries.Add(new HeatSeries
+        HeatMapSeries?.Add(new HeatSeries
         {
             Title = title,
             Values = values,
@@ -237,7 +208,7 @@ public class ClimateChartViewModel : Screen
 
     private void UpdateYAxisLabels()
     {
-        YAxisLabels = HeatMapSeries.Select(s => s.Title).Reverse().ToList();
+        if (HeatMapSeries != null) YAxisLabels = HeatMapSeries.Select(s => s.Title).Reverse().ToList();
         NotifyOfPropertyChange(() => YAxisLabels);
     }
 
@@ -248,23 +219,23 @@ public class ClimateChartViewModel : Screen
             return CreatePrecipitationGradient();
         }
         
-        return new GradientStopCollection
-        {
+        return
+        [
             new GradientStop { Offset = 0, Color = Colors.Blue },
             new GradientStop { Offset = 0.4, Color = Colors.White },
             new GradientStop { Offset = 0.7, Color = Colors.Orange },
             new GradientStop { Offset = 1, Color = Colors.Red }
-        };
+        ];
     }
 
     private GradientStopCollection CreatePrecipitationGradient()
     {
-        return new GradientStopCollection
-        {
+        return
+        [
             new GradientStop { Offset = 0, Color = Colors.LightGreen },
             new GradientStop { Offset = 0.7, Color = Colors.Green },
             new GradientStop { Offset = 1, Color = Colors.DarkGreen }
-        };
+        ];
     }
     #endregion
 }

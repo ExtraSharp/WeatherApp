@@ -3,18 +3,15 @@
 public class ChangeDataViewModel : Screen
 {
     #region Private Members
-    private BindableCollection<MonthModel> _availableMonths = new();
-    private MonthModel _selectedMonth;
+    private BindableCollection<MonthModel?> _availableMonths = new();
+    private MonthModel? _selectedMonth;
     private readonly IDataRepository _dataRepository;
     #endregion
 
     #region Public Properties
-    public MonthModel SelectedMonth
+    public MonthModel? SelectedMonth
     {
-        get 
-        { 
-            return _selectedMonth; 
-        }
+        get => _selectedMonth;
         set 
         { 
             _selectedMonth = value;
@@ -22,14 +19,13 @@ public class ChangeDataViewModel : Screen
         }
     }   
 
-	public BindableCollection<MonthModel> AvailableMonths
+	public BindableCollection<MonthModel?> AvailableMonths
     {
-		get { return _availableMonths; }
-		set 
+		get => _availableMonths;
+        set 
         {
             _availableMonths = value;
             NotifyOfPropertyChange(() => AvailableMonths);
-               
         }
 	}
     #endregion
@@ -46,7 +42,7 @@ public class ChangeDataViewModel : Screen
     private void DisplayAvailableData()
     {
         var months = _dataRepository.GetAvailableMonths();
-        AvailableMonths = new BindableCollection<MonthModel>(months);
+        AvailableMonths = new BindableCollection<MonthModel?>(months);
 
         SortAvailableMonths();
     }
@@ -76,66 +72,60 @@ public class ChangeDataViewModel : Screen
         }        
     }
 
-    private void PerformDelete(MonthModel monthToDelete)
+    private void PerformDelete(MonthModel? monthToDelete)
     {
-        string confirmationMessage = monthToDelete != null ? "Are you sure you want to delete the selected month?" : "Are you sure you want to delete all data?";
-        MessageBoxResult result = MessageBox.Show(confirmationMessage, "Confirm Deletion", MessageBoxButton.YesNo, MessageBoxImage.Question);
+        var confirmationMessage = monthToDelete != null ? "Are you sure you want to delete the selected month?" : "Are you sure you want to delete all data?";
+        var result = MessageBox.Show(confirmationMessage, "Confirm Deletion", MessageBoxButton.YesNo, MessageBoxImage.Question);
 
-        if (result == MessageBoxResult.Yes)
+        if (result != MessageBoxResult.Yes) return;
+        try
         {
-            try
+            if (monthToDelete != null)
             {
-                if (monthToDelete != null)
-                {
-                    _dataRepository.DeleteMonth(monthToDelete);
-                    AvailableMonths.Remove(monthToDelete);
-                    MessageBox.Show("Month Deleted", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
-                }
-                else
-                {
-                    foreach (var item in AvailableMonths.ToList())
-                    {
-                        _dataRepository.DeleteMonth(item);
-                        AvailableMonths.Remove(item);
-                    }
-                    MessageBox.Show("All data has been deleted", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
-                }
+                _dataRepository.DeleteMonth(monthToDelete);
+                AvailableMonths.Remove(monthToDelete);
+                MessageBox.Show("Month Deleted", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
             }
-            catch (Exception)
+            else
             {
-                
+                foreach (var item in AvailableMonths.ToList())
+                {
+                    _dataRepository.DeleteMonth(item);
+                    AvailableMonths.Remove(item);
+                }
+                MessageBox.Show("All data has been deleted", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
             }
+        }
+        catch (Exception)
+        {
+            // ignored
         }
     }
 
-    public void SortAvailableMonths()
+    private void SortAvailableMonths()
     {
-        if (AvailableMonths != null && AvailableMonths.Any())
+        if (AvailableMonths.Any())
         {
-            AvailableMonths = new BindableCollection<MonthModel>(AvailableMonths.OrderByDescending(m => m.Year).ThenByDescending(m => m.Month));
+            AvailableMonths = new BindableCollection<MonthModel?>(AvailableMonths.OrderByDescending(m => m?.Year ?? 0).ThenByDescending(m => m?.Month ?? 0));
         }
     }
 
     public void AddFromFile()
     {
-        string filePath = "";
-
-        OpenFileDialog openFileDialog = new OpenFileDialog
+        var openFileDialog = new OpenFileDialog
         {
             Title = "Select a File",
             Filter = "CSV files (*.csv)|*.csv|All files (*.*)|*.*"
         };
 
-        if (openFileDialog.ShowDialog() == true)
-        {
-            filePath = openFileDialog.FileName;
-            SaveMonths(new List<MonthModel> { GeneralHelpers.ReadDataFromCsv(filePath) });
-        }
+        if (openFileDialog.ShowDialog() != true) return;
+        var filePath = openFileDialog.FileName;
+
+        SaveMonths(new List<MonthModel> { GeneralHelpers.ReadDataFromCsv(filePath) });
     }
 
     public void AddFromFolder()
     {
-        string folderPath = "";
         List<MonthModel> monthsToSave = new List<MonthModel>();
 
         OpenFolderDialog openFolderDialog = new OpenFolderDialog()
@@ -145,7 +135,7 @@ public class ChangeDataViewModel : Screen
 
         if (openFolderDialog.ShowDialog() == true)
         {
-            folderPath = openFolderDialog.FolderName;
+            var folderPath = openFolderDialog.FolderName;
             string[] csvFiles = Directory.GetFiles(folderPath, "*.csv");
 
             foreach (string csvFile in csvFiles)
@@ -169,7 +159,7 @@ public class ChangeDataViewModel : Screen
             {
                 if (!overwriteAll)
                 {
-                    MessageBoxResult result = MessageBox.Show("Data for at least month already exists. Do you want to overwrite the existing data?", $"Confirm Overwrite", MessageBoxButton.YesNoCancel, MessageBoxImage.Warning);
+                    var result = MessageBox.Show("Data for at least month already exists. Do you want to overwrite the existing data?", $"Confirm Overwrite", MessageBoxButton.YesNoCancel, MessageBoxImage.Warning);
 
                     if (result == MessageBoxResult.Yes)
                     {

@@ -2,7 +2,7 @@
 public interface IDataRepository
 {
     List<MonthModel> GetAvailableMonths();
-    void DeleteMonth(MonthModel month);
+    void DeleteMonth(MonthModel? month);
     void DeleteAllMonths();
     bool MonthExists(int year, int month);
     void CreateMonth(MonthModel month);

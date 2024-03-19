@@ -1,21 +1,18 @@
-﻿using System.Collections.Generic;
-
-namespace WeatherLibrary.Services;
-public class ClimateChartCalculationService
+﻿namespace WeatherLibrary.Services;
+public static class ClimateChartCalculationService
 {
-    public List<ClimateChartModel> CalculateChartData(List<List<DayModel>> allMonths)
+    public static List<ClimateChartModel> CalculateChartData(List<List<DayModel>> allMonths)
     {
-        List<ClimateChartModel> output = CalculateMonthlyStatistics(allMonths);
-        List<ClimateChartModel> monthlyDataWithEmpty = AddEmptyData(output);
-
-        ClimateChartModel yearTotals = GetYearTotals(output, allMonths);
+        var output = CalculateMonthlyStatistics(allMonths);
+        var monthlyDataWithEmpty = AddEmptyData(output);
+        var yearTotals = GetYearTotals(output, allMonths);
         output = monthlyDataWithEmpty;
         output.Add(yearTotals);
         
         return output;
     }
 
-    private List<ClimateChartModel> CalculateMonthlyStatistics(List<List<DayModel>> allMonths)
+    private static List<ClimateChartModel> CalculateMonthlyStatistics(List<List<DayModel>> allMonths)
     {
         List<ClimateChartModel> monthlyStatistics = new List<ClimateChartModel>();
 
@@ -43,18 +40,13 @@ public class ClimateChartCalculationService
         return monthlyStatistics;
     }
 
-    private List<ClimateChartModel> AddEmptyData(List<ClimateChartModel> overallStatistics)
+    private static List<ClimateChartModel> AddEmptyData(List<ClimateChartModel> overallStatistics)
     {
-        List<ClimateChartModel> output = new List<ClimateChartModel>();
+        var output = overallStatistics.ToList();
 
-        foreach (var item in overallStatistics)
-        {
-            output.Add(item);
-        }
+        var numberOfMonths = output.Count;
 
-        int numberOfMonths = output.Count();
-
-        for (int i = numberOfMonths + 1; i < 13; i++)
+        for (var i = numberOfMonths + 1; i < 13; i++)
         {
             output.Add(new ClimateChartModel
             {
@@ -72,7 +64,7 @@ public class ClimateChartCalculationService
         return output;
     }
 
-    private ClimateChartModel GetYearTotals(List<ClimateChartModel> overallStatistics, List<List<DayModel>> allMonths)
+    private static ClimateChartModel GetYearTotals(List<ClimateChartModel> overallStatistics, List<List<DayModel>> allMonths)
     {
         ClimateChartModel output = new ClimateChartModel
         {
@@ -89,27 +81,28 @@ public class ClimateChartCalculationService
         return output;
     }
 
-    private double CalculateMonthlyMeans(int monthIndex, List<List<DayModel>> allMonths, string minMax)
+    private static double CalculateMonthlyMeans(int monthIndex, List<List<DayModel>> allMonths, string minMax)
     {
-        List<double> output = minMax == "max" ?
+        var output = minMax == "max" ?
             allMonths.SelectMany(x => x)
-                     .Where(day => day.Month == monthIndex)
-                     .GroupBy(day => day.Year)
-                     .Select(group => group.Max(day => day.MaxTemp))
-                     .ToList() :
+                .Where(day => day.Month == monthIndex)
+                .GroupBy(day => day.Year)
+                .Select(group => group.Max(day => day.MaxTemp))
+                .ToList() :
             allMonths.SelectMany(x => x)
-                     .Where(day => day.Month == monthIndex)
-                     .GroupBy(day => day.Year)
-                     .Select(group => group.Min(day => day.MinTemp))
-                     .ToList();
+                .Where(day => day.Month == monthIndex)
+                .GroupBy(day => day.Year)
+                .Select(group => group.Min(day => day.MinTemp))
+                .ToList();
 
-        double meanMonthlyTemp = output.Any() ? output.Average() : 0;
+        var meanMonthlyTemp = output.Any() ? output.Average() : 0;
 
         return meanMonthlyTemp;
     }
-    private double CalculateYearlyMeans(List<List<DayModel>> allMonths, string minMax)
+
+    private static double CalculateYearlyMeans(IEnumerable<List<DayModel>> allMonths, string minMax)
     {
-        List<double> yearlyTemps = minMax == "max" ?
+        var yearlyTemps = minMax == "max" ?
             allMonths.SelectMany(x => x)
                      .GroupBy(day => day.Year)
                      .Where(group => group.Count() >= 365) // Filter only years with at least 365 days
@@ -121,12 +114,8 @@ public class ClimateChartCalculationService
                      .Select(group => group.Min(day => day.MinTemp))
                      .ToList();
 
-        double overallYearlyMean = yearlyTemps.Any() ? yearlyTemps.Average() : 0;
+        var overallYearlyMean = yearlyTemps.Any() ? yearlyTemps.Average() : 0;
 
         return overallYearlyMean;
     }
-
-
-
-
 }

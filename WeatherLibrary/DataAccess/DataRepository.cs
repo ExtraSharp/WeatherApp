@@ -1,50 +1,45 @@
 ﻿namespace WeatherLibrary.DataAccess;
-public class DataRepository : IDataRepository
+public class DataRepository(string? connectionString) : IDataRepository
 {
-    private readonly SqliteCrud sql;
-
-    public DataRepository(string connectionString)
-    {
-        sql = new SqliteCrud(connectionString);
-    }
+    private readonly SqliteCrud _sql = new(connectionString);
 
     public List<MonthModel> GetAvailableMonths()
     {
-        return sql.GetAvailableMonths();
+        return _sql.GetAvailableMonths();
     }
 
-    public void DeleteMonth(MonthModel month)
+    public void DeleteMonth(MonthModel? month)
     {
-        sql.DeleteMonth(month);
+        _sql.DeleteMonth(month);
     }
 
     public void DeleteAllMonths()
     {
-        sql.DeleteAllMonths();
+        _sql.DeleteAllMonths();
     }
 
     public bool MonthExists(int month, int year)
     {
-        return sql.MonthExists(year, month) == true;
+        return _sql.MonthExists(year, month);
     }
 
     public void CreateMonth(MonthModel month)
     {
-        sql.CreateMonth(month);
+        _sql.CreateMonth(month);
     }
 
     public void UpdateMonth(MonthModel month)
     {
-        sql.UpdateMonth(month);
+        _sql.UpdateMonth(month);
     }
 
     public List<DayModel> GetMonths(int month)
     {
-        return sql.GetMonths(month);
+        return _sql.GetMonths(month);
     }
 
     public List<DayModel> GetDays(int month, int day)
     {
-        return sql.GetDays(month, day);
+        return _sql.GetDays(month, day);
     }
 }

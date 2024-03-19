@@ -1,19 +1,15 @@
 ﻿namespace WeatherLibrary.DataAccess;
 public class SqlDataAccess : IDataAccess
 {
-    public List<T> LoadData<T, U>(string sql, U parameters, string connectionString)
+    public List<T> LoadData<T, TU>(string sql, TU parameters, string? connectionString)
     {
-        using (IDbConnection connection = new SqlConnection(connectionString))
-        {
-            return connection.Query<T>(sql, parameters).ToList();
-        }
+        using IDbConnection connection = new SqlConnection(connectionString);
+        return connection.Query<T>(sql, parameters).ToList();
     }
 
-    public void SaveData<T>(string sql, T parameters, string connectionString)
+    public void SaveData<T>(string sql, T parameters, string? connectionString)
     {
-        using (IDbConnection connection = new SqlConnection(connectionString))
-        {
-            connection.Execute(sql, parameters);
-        }
+        using IDbConnection connection = new SqlConnection(connectionString);
+        connection.Execute(sql, parameters);
     }
 }

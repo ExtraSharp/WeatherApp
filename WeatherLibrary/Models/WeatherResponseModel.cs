@@ -27,7 +27,7 @@ public class Source
     public string dwd_station_id { get; set; }
 
     [JsonPropertyName("station_name")]
-    public string StationName { get; set; }
+    public string? StationName { get; set; }
 }
 
 

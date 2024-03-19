@@ -1,5 +1,5 @@
 ﻿namespace WeatherLibrary.DataAccess;
-public class SqliteCrud(string connectionString) : IDataRepository
+public class SqliteCrud(string? connectionString) : IDataRepository
 {
     private readonly SqliteDataAccess db = new SqliteDataAccess();
 
@@ -25,7 +25,7 @@ public class SqliteCrud(string connectionString) : IDataRepository
         db.SaveData(sql, new { }, connectionString);
     }
 
-    public void DeleteMonth(MonthModel month)
+    public void DeleteMonth(MonthModel? month)
     {
         string sql = "delete from WeatherData where Year = @Year and Month = @Month";
         db.SaveData(sql, new { month.Year, month.Month }, connectionString);

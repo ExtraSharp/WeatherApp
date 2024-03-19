@@ -5,8 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:converters="clr-namespace:WPFUI.Converters"
         xmlns:lvc="clr-namespace:LiveCharts.Wpf;assembly=LiveCharts.Wpf"
-        xmlns:cal="http://www.caliburnproject.org"          
-        xmlns:local="clr-namespace:WPFUI.Views" xmlns:viewmodels="clr-namespace:WPFUI.ViewModels" d:DataContext="{d:DesignInstance Type=viewmodels:ShellViewModel}"
+        xmlns:cal="http://www.caliburnproject.org"
+        xmlns:viewmodels="clr-namespace:WPFUI.ViewModels" d:DataContext="{d:DesignInstance Type=viewmodels:ShellViewModel}"
         mc:Ignorable="d"
         Title="WeatherApp" Height="625" Width="800" MinWidth="1100" MinHeight="625">
     <Window.Resources>
@@ -77,7 +77,7 @@
             </StackPanel>
             <StackPanel Orientation="Horizontal">
                 <Button x:Name="SetToday" Margin="5" Style="{StaticResource BlueButton}" Width="60" HorizontalAlignment="Left">Today</Button>
-                <Button x:Name="Refresh" Content="&#xE895;" FontFamily="Segoe MDL2 Assets" Style="{StaticResource BlueButton}"/>
+                <Button x:Name="RefreshData" Content="&#xE895;" FontFamily="Segoe MDL2 Assets" Style="{StaticResource BlueButton}"/>
             </StackPanel>            
         </StackPanel>
         

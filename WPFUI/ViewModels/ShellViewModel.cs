@@ -8,11 +8,9 @@
 public class ShellViewModel : Conductor<object>
 {
     #region Private Members
-    private ClimateChartViewModel _climateChartViewModelInstance;
-    private ChangeDataViewModel _changeDataViewModelInstance;
     private int _previousMonth;
-    private SeriesCollection _seriesCollection;
-    private IWindowManager _windowManager = new WindowManager();
+    private SeriesCollection? _seriesCollection;
+    private readonly IWindowManager _windowManager = new WindowManager();
     private DateTime _today;
     private int _month;
     private int _day;
@@ -29,17 +27,17 @@ public class ShellViewModel : Conductor<object>
     private bool _isHistoricalDataVisible;
     private bool _isNoDataVisible;
     private double _currentTemperature;
-    private BitmapImage _weatherImage;
-    private string _stationName;
+    private BitmapImage? _weatherImage;
+    private string? _stationName;
     private readonly string _connectionStringName = "sqlite";
-    private DataRepository _dataRepository;
-    private DataFetchingService _dataFetchingService;
+    private readonly DataRepository _dataRepository;
+    private readonly DataFetchingService _dataFetchingService;
     #endregion
 
     #region Public Properties
-    public string StationName
+    public string? StationName
     {
-        get { return _stationName; }
+        get => _stationName;
         set 
         { 
             _stationName = value;
@@ -47,9 +45,9 @@ public class ShellViewModel : Conductor<object>
         }
     }
 
-    public BitmapImage WeatherImage
+    public BitmapImage? WeatherImage
     {
-        get { return _weatherImage; }
+        get => _weatherImage;
         set
         {
             _weatherImage = value;
@@ -57,12 +55,9 @@ public class ShellViewModel : Conductor<object>
         }
     }
 
-    public SeriesCollection SeriesCollection
+    public SeriesCollection? SeriesCollection
     {
-        get 
-        { 
-            return _seriesCollection; 
-        }
+        get => _seriesCollection;
         set 
         {
             _seriesCollection = value; 
@@ -85,8 +80,8 @@ public class ShellViewModel : Conductor<object>
 
     public DateTime Today
     {
-        get { return _today; }
-        set
+        get => _today;
+        private set
         {
             _today = value;
             NotifyOfPropertyChange(() => Today);
@@ -118,7 +113,7 @@ public class ShellViewModel : Conductor<object>
 
     public double MaxTemp
     {
-        get { return _maxTemp; }
+        get => _maxTemp;
         set
         {
             _maxTemp = value;
@@ -128,7 +123,7 @@ public class ShellViewModel : Conductor<object>
 
     public int Month
     {
-        get { return _month; }
+        get => _month;
         set
         {
             _previousMonth = Month;
@@ -144,7 +139,7 @@ public class ShellViewModel : Conductor<object>
 
     public int Day
     {
-        get { return _day; }
+        get => _day;
         set
         {
             _day = value;
@@ -154,7 +149,7 @@ public class ShellViewModel : Conductor<object>
 
     public double MinTemp
     {
-        get { return _minTemp; }
+        get => _minTemp;
         set
         {
             _minTemp = value;
@@ -164,7 +159,7 @@ public class ShellViewModel : Conductor<object>
 
     public double Precipitation
     {
-        get { return _precipitation; }
+        get => _precipitation;
         set
         {
             _precipitation = value;
@@ -174,7 +169,7 @@ public class ShellViewModel : Conductor<object>
 
     public double SunshineHours
     {
-        get { return _sunshineHours; }
+        get => _sunshineHours;
         set
         {
             _sunshineHours = value;
@@ -184,7 +179,7 @@ public class ShellViewModel : Conductor<object>
 
     public double RecordHigh
     {
-        get { return _recordHigh; }
+        get => _recordHigh;
         set
         {
             _recordHigh = value;
@@ -194,7 +189,7 @@ public class ShellViewModel : Conductor<object>
 
     public double RecordLow
     {
-        get { return _recordLow; }
+        get => _recordLow;
         set
         {
             _recordLow = value;
@@ -204,7 +199,7 @@ public class ShellViewModel : Conductor<object>
 
     public int RecordHighYear
     {
-        get { return _recordHighYear; }
+        get => _recordHighYear;
         set
         {
             _recordHighYear = value;
@@ -214,7 +209,7 @@ public class ShellViewModel : Conductor<object>
 
     public int RecordLowYear
     {
-        get { return _recordLowYear; }
+        get => _recordLowYear;
         set
         {
             _recordLowYear = value;
@@ -224,7 +219,7 @@ public class ShellViewModel : Conductor<object>
 
     public bool IsChartVisible
     {
-        get { return _isChartVisible; }
+        get => _isChartVisible;
         set
         {
             if (_isChartVisible != value)
@@ -237,7 +232,7 @@ public class ShellViewModel : Conductor<object>
 
     public bool IsHistoricalDataVisible
     {
-        get { return _isHistoricalDataVisible; }
+        get => _isHistoricalDataVisible;
         set
         {
             if (_isHistoricalDataVisible != value)
@@ -250,7 +245,7 @@ public class ShellViewModel : Conductor<object>
 
     public bool IsNoDataVisible
     {
-        get { return _isNoDataVisible; }
+        get => _isNoDataVisible;
         set
         {
             if (_isNoDataVisible != value)
@@ -282,7 +277,7 @@ public class ShellViewModel : Conductor<object>
             var uri = new Uri("pack://application:,,,/WPFUI;component/Images/clear_day.png");
             WeatherImage = new BitmapImage(uri);
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             // Handle any exceptions
             // Log or display error message
@@ -347,25 +342,28 @@ public class ShellViewModel : Conductor<object>
         }
     }
 
-    public void Refresh()
+    public void RefreshData()
     {
         SetToday();
         GetGraphDisplayData();
         GetCurrentWeather();
     }
 
-    public async void GetCurrentWeather()
+    private async void GetCurrentWeather()
     {
-        ApiAccess api = new ApiAccess();
+        var api = new ApiAccess();
         var currentWeather = await api.GetWeatherData();
 
-        CurrentTemperature = currentWeather.weather.Temperature;
-        StationName = currentWeather.sources[0].StationName;
+        if (currentWeather != null)
+        {
+            CurrentTemperature = currentWeather.weather.Temperature;
+            StationName = currentWeather.sources[0].StationName;
+        }
 
         LoadWeatherImage();
     }
 
-    void GetDailyMeans() 
+    private void GetDailyMeans() 
     {
         try
         {
@@ -385,7 +383,7 @@ public class ShellViewModel : Conductor<object>
         Today = DateTime.Now;
     }
 
-    void DisplayDailyMeans(List<DayModel> days)
+    private void DisplayDailyMeans(IReadOnlyCollection<DayModel> days)
     {
         IsHistoricalDataVisible = true;
         IsNoDataVisible = false;
@@ -396,19 +394,17 @@ public class ShellViewModel : Conductor<object>
         Precipitation = days.Average(x => x.Precipitation);
         SunshineHours = days.Average(x => x.SunshineHours);
 
-        var recordHighData = days.OrderByDescending(x => x.MaxTemp).FirstOrDefault();
+        var recordHighData = days.MaxBy(x => x.MaxTemp);
         if (recordHighData != null)
         {
             RecordHigh = recordHighData.MaxTemp;
             RecordHighYear = recordHighData.Year;
         }
 
-        var recordLowData = days.OrderBy(x => x.MinTemp).FirstOrDefault();
-        if (recordLowData != null)
-        {
-            RecordLow = recordLowData.MinTemp;
-            RecordLowYear = recordLowData.Year;
-        }
+        var recordLowData = days.MinBy(x => x.MinTemp);
+        if (recordLowData == null) return;
+        RecordLow = recordLowData.MinTemp;
+        RecordLowYear = recordLowData.Year;
     }
 
     public void NextDay()
@@ -429,7 +425,7 @@ public class ShellViewModel : Conductor<object>
 
     public void OpenClimateChartView()
     {
-        if (_isNoDataVisible == true)
+        if (_isNoDataVisible)
         {
             MessageBox.Show("Please add some data first", "No Data to display", MessageBoxButton.OK, MessageBoxImage.Information);
         }
@@ -438,11 +434,11 @@ public class ShellViewModel : Conductor<object>
         _windowManager.ShowWindowAsync(climateChartViewModel);
     }
 
-    public override async Task<bool> CanCloseAsync(CancellationToken cancellationToken = default)
+    public override Task<bool> CanCloseAsync(CancellationToken cancellationToken = default)
     {
         Application.Current.Shutdown();
 
-        return true;
+        return Task.FromResult(true);
     }
     #endregion
 }

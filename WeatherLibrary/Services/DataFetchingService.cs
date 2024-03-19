@@ -1,20 +1,13 @@
 ﻿namespace WeatherLibrary.Services;
-public class DataFetchingService
+public class DataFetchingService(IDataRepository dataRepository)
 {
-    private readonly IDataRepository _dataRepository;
-
-    public DataFetchingService(IDataRepository dataRepository)
+    public IEnumerable<List<DayModel>> GetAllMonths()
     {
-        _dataRepository = dataRepository;
-    }
+        var allMonths = new List<List<DayModel>>();
 
-    public List<List<DayModel>> GetAllMonths()
-    {
-        List<List<DayModel>> allMonths = new List<List<DayModel>>();
-
-        for (int i = 1; i <= 12; i++)
+        for (var i = 1; i <= 12; i++)
         {
-            allMonths.Add(_dataRepository.GetMonths(i));
+            allMonths.Add(dataRepository.GetMonths(i));
         }
 
         return allMonths;
@@ -22,17 +15,17 @@ public class DataFetchingService
 
     public List<DayModel> GetDaysForMonth(int year, int month)
     {
-        int numberOfDays = DateTime.DaysInMonth(year, month);
-        List<DayModel> daysForMonth = new List<DayModel>();
+        var numberOfDays = DateTime.DaysInMonth(year, month);
+        var daysForMonth = new List<DayModel>();
 
-        for (int i = 1; i <= numberOfDays; i++)
+        for (var i = 1; i <= numberOfDays; i++)
         {
-            var days = _dataRepository.GetDays(month, i);
-            double maxTemp = days.Average(x => x.MaxTemp);
-            double minTemp = days.Average(x => x.MinTemp);
-            double precipitation = days.Average(x => x.Precipitation);
+            var days = dataRepository.GetDays(month, i);
+            var maxTemp = days.Average(x => x.MaxTemp);
+            var minTemp = days.Average(x => x.MinTemp);
+            var precipitation = days.Average(x => x.Precipitation);
 
-            DayModel day = new DayModel
+            var day = new DayModel
             {
                 Day = i,
                 MaxTemp = maxTemp,

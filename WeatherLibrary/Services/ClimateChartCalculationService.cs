@@ -8,7 +8,7 @@ public class ClimateChartCalculationService
         ClimateChartModel yearTotals = GetYearlyData(output);
         output = monthlyDataWithEmpty;
         output.Add(yearTotals);
-
+        // hello
         return output;
     }
 

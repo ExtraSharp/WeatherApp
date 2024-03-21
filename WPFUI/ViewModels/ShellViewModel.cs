@@ -32,9 +32,41 @@ public class ShellViewModel : Conductor<object>
     private readonly string _connectionStringName = "sqlite";
     private readonly DataRepository _dataRepository;
     private readonly DataFetchingService _dataFetchingService;
+    private double? _humidity;
+    private double? _dewPoint;
+    private double? _cloudCover;
     #endregion
 
     #region Public Properties
+    public double? CloudCover
+    {
+        get => _cloudCover;
+        set
+        {
+            _cloudCover = value;
+            NotifyOfPropertyChange(() => CloudCover);
+        }
+    }
+
+    public double? DewPoint
+    {
+        get => _dewPoint;
+        set
+        {
+            _dewPoint = value;
+            NotifyOfPropertyChange(() => DewPoint);
+        }
+    }
+
+    public double? Humidity
+    {
+        get => _humidity;
+        set
+        {
+            _humidity = value;
+            NotifyOfPropertyChange(() => Humidity);
+        }
+    }
     public string? StationName
     {
         get => _stationName;
@@ -103,7 +135,7 @@ public class ShellViewModel : Conductor<object>
 
     public double CurrentTemperature
     {
-        get { return _currentTemperature; }
+        get => _currentTemperature;
         set
         {
             _currentTemperature = value;
@@ -356,8 +388,11 @@ public class ShellViewModel : Conductor<object>
 
         if (currentWeather != null)
         {
-            CurrentTemperature = currentWeather.weather.Temperature;
+            if (currentWeather.weather != null) CurrentTemperature = currentWeather.weather.Temperature;
+            if (currentWeather.weather != null) DewPoint = currentWeather.weather.DewPoint;
             StationName = currentWeather.sources[0].StationName;
+            Humidity = currentWeather.weather?.Humidity;
+            CloudCover = currentWeather.weather?.CloudCover;
         }
 
         LoadWeatherImage();

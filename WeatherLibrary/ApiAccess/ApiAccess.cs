@@ -11,7 +11,7 @@ public class ApiAccess
 
     public async Task<WeatherResponseModel?> GetWeatherData()
     {
-        var response = await _client.GetJsonAsync<WeatherResponseModel>("current_weather?dwd_station_id=01050");
+        var response = await _client.GetJsonAsync<WeatherResponseModel>($"current_weather?lat=51.05&lon=13.73");
 
         return response;
     }

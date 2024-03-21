@@ -29,18 +29,34 @@
         </Grid.ColumnDefinitions>
 
         <!-- Row 1 Current Weather -->
-        <StackPanel Orientation="Vertical" Grid.Row="1" Grid.Column="1" Margin="20">
-            <TextBlock Text="Current Weather" FontSize="20" />
-            <StackPanel Orientation="Horizontal" Margin="0 10">
-                <Image Width="60" Height="60" Source="{Binding WeatherImage}" Margin="5 0 5 0"/>
-                <TextBlock Text="{Binding CurrentTemperature, StringFormat={}{0:F1} °C}" Margin="5 0 0 0" VerticalAlignment="Center" FontSize="18" FontWeight="SemiBold"/>
+        <StackPanel Orientation="Vertical" Grid.Row="1" Grid.Column="1" Margin="20" Grid.ColumnSpan="2" HorizontalAlignment="Center">
+            
+            <TextBlock x:Name="StationName" Margin="5 0 0 0" FontSize="20" HorizontalAlignment="Center" />
+            
+            <StackPanel Orientation="Horizontal" Margin="0 10" HorizontalAlignment="Center">
+                <Image Width="50" Height="50" Source="{Binding WeatherImage}" Margin="5 5 5 0"/>
+                <TextBlock Text="{Binding CurrentTemperature, StringFormat={}{0:F1}°C}" Margin="5 0 0 0" VerticalAlignment="Center" FontFamily="Arial Narrow" FontSize="36" FontWeight="SemiBold"/>
             </StackPanel>
-            <TextBlock x:Name="StationName" Margin="5 0 0 0"/>
+            
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Margin="0 0 5 0" FontSize="11">
+                    <Run Text="Dew Point: "/>
+                    <Run Text="{Binding DewPoint, StringFormat={}{0:F1}°C}" />
+                </TextBlock>
+                <TextBlock Margin="5 0 5 0" FontSize="11">
+                    <Run Text="Humidity: "/>
+                    <Run Text="{Binding Humidity, StringFormat={}{0:F0}%}" />
+                </TextBlock>
+                <TextBlock Margin="5 0 0 0" FontSize="11">
+                    <Run Text="Cloud Cover: "/>
+                    <Run Text="{Binding CloudCover, StringFormat={}{0:F0}%}" />
+                </TextBlock>
+            </StackPanel>
+
         </StackPanel>
 
-        <StackPanel Grid.Row="1" Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="20">
-            <Button x:Name="OpenDataView" Content="Add / Change Data" Width="125" Height="40" Margin="5" Style="{StaticResource BlueButton}" />
-            <Button x:Name="OpenClimateChartView" Content="Climate Chart" Width="125" Height="40" Margin="5" Style="{StaticResource BlueButton}" />
+        <StackPanel Grid.Row="3" Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" Margin="20">
+            
         </StackPanel>
 
         <!-- Row 2 Historic Averages -->
@@ -78,20 +94,27 @@
             <StackPanel Orientation="Horizontal">
                 <Button x:Name="SetToday" Margin="5" Style="{StaticResource BlueButton}" Width="60" HorizontalAlignment="Left">Today</Button>
                 <Button x:Name="RefreshData" Content="&#xE895;" FontFamily="Segoe MDL2 Assets" Style="{StaticResource BlueButton}"/>
+                
             </StackPanel>            
         </StackPanel>
-        
-        
-        <lvc:CartesianChart Grid.Column="2" Grid.Row="2" MinHeight="300" Series="{Binding SeriesCollection}" Margin="20 40 20 20"
-                            VerticalAlignment="Top" LegendLocation="Right" cal:Message.Attach="[Event DataClick] = [Action OnChartDataClick()]" 
-                            Visibility="{Binding IsChartVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
-            <lvc:CartesianChart.AxisX>
-                <lvc:Axis Title="Date" Labels="{Binding DateLabels}"/>
-            </lvc:CartesianChart.AxisX>
-            <lvc:CartesianChart.AxisY>
-                <lvc:Axis Title="Temperature" Position="LeftBottom" />
-                <lvc:Axis Title="Precipitation" Position="RightTop" />
-            </lvc:CartesianChart.AxisY>
-        </lvc:CartesianChart>
+
+
+        <StackPanel Grid.Column="2" Grid.Row="2" Orientation="Vertical">
+            <lvc:CartesianChart MinHeight="250" Series="{Binding SeriesCollection}" Margin="20 40 20 20"
+                                VerticalAlignment="Top" LegendLocation="Right" cal:Message.Attach="[Event DataClick] = [Action OnChartDataClick()]" 
+                                Visibility="{Binding IsChartVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
+                <lvc:CartesianChart.AxisX>
+                    <lvc:Axis Title="Date" Labels="{Binding DateLabels}"/>
+                </lvc:CartesianChart.AxisX>
+                <lvc:CartesianChart.AxisY>
+                    <lvc:Axis Title="Temperature" Position="LeftBottom" />
+                    <lvc:Axis Title="Precipitation" Position="RightTop" />
+                </lvc:CartesianChart.AxisY>
+            </lvc:CartesianChart>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button x:Name="OpenDataView" Content="Add / Change Data" Width="125" Height="40" Margin="5" Style="{StaticResource BlueButton}" />
+                <Button x:Name="OpenClimateChartView" Content="Open Climate Chart" Width="125" Height="40" Margin="5" Style="{StaticResource BlueButton}" />
+            </StackPanel>
+        </StackPanel>
     </Grid>
 </Window>

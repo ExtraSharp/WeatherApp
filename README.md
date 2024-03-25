@@ -1,6 +1,6 @@
 # Weather App
 
-This weather app reads the current temperture, humidity, dew point and cloud cover for the user's location from an api and displays it.
+The app reads the current temperture, humidity, dew point and cloud cover for the user's location from an api and displays it.
 
 Additionally, it can read historical data from .csv files and displays daily averages.
 

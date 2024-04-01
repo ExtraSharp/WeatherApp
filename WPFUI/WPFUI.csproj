@@ -9,11 +9,39 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Images\clear-night.png" />
     <None Remove="Images\clear_day.png" />
+    <None Remove="Images\cloudy-night.png" />
+    <None Remove="Images\cloudy.png" />
+    <None Remove="Images\partly-cloudy.png" />
+    <None Remove="Images\rainy.png" />
+    <None Remove="Images\sunny.png" />
+    <None Remove="Images\thunderstorm.png" />
     <None Remove="SqliteWeatherDB.db" />
   </ItemGroup>
 
   <ItemGroup>
+    <Content Include="Images\clear-night.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\cloudy-night.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\cloudy.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\partly-cloudy.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\rainy.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\sunny.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\thunderstorm.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="SqliteWeatherDB.db">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -37,9 +65,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Resource Include="Images\clear_day.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Resource>
+    <Content Include="Images\clear_day.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
 </Project>

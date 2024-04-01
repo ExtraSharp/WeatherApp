@@ -1,4 +1,6 @@
-﻿namespace WPFUI.ViewModels;
+﻿using System;
+
+namespace WPFUI.ViewModels;
 
 // TODO
 // slider to select month
@@ -35,9 +37,19 @@ public class ShellViewModel : Conductor<object>
     private double? _humidity;
     private double? _dewPoint;
     private double? _cloudCover;
+    private string _weatherIcon;
     #endregion
 
     #region Public Properties
+    public string WeatherIcon
+    {
+        get => _weatherIcon;
+        set
+        {
+            _weatherIcon = value;
+            NotifyOfPropertyChange(() => WeatherIcon);
+        }
+    }
     public double? CloudCover
     {
         get => _cloudCover;
@@ -304,16 +316,28 @@ public class ShellViewModel : Conductor<object>
     #region Methods
     private void LoadWeatherImage()
     {
-        try
+        var weatherIconUrIs = new Dictionary<string, string>
         {
-            var uri = new Uri("pack://application:,,,/WPFUI;component/Images/clear_day.png");
-            WeatherImage = new BitmapImage(uri);
-        }
-        catch (Exception)
+            { "sunny", "clear_day.png" },
+            { "cloudy", "cloudy.png" },
+            { "partly-cloudy", "partly-cloudy.png" },
+            { "rainy", "rainy.png" },
+            { "thunderstorm", "thunderstorm.png" },
+            { "clear-night", "clear-night.png" },
+            { "cloudy-night", "cloudy-night.png" }
+        };
+
+        Uri uri;
+
+        if (weatherIconUrIs.TryGetValue(WeatherIcon, out string? imageName))
         {
-            // Handle any exceptions
-            // Log or display error message
+            uri = new Uri($"pack://application:,,,/WPFUI;component/Images/{imageName}");
         }
+        else
+        {
+            uri = new Uri($"pack://application:,,,/WPFUI;component/Images/clear-day.png");
+        }
+        WeatherImage = new BitmapImage(uri);
     }
 
     void GetGraphDisplayData()
@@ -393,6 +417,17 @@ public class ShellViewModel : Conductor<object>
             StationName = currentWeather.sources[0].StationName;
             Humidity = currentWeather.weather?.Humidity;
             CloudCover = currentWeather.weather?.CloudCover;
+            WeatherIcon = currentWeather?.weather?.Icon switch
+            {
+                "clear-day" => "sunny",
+                "cloudy" => "cloudy",
+                "rainy" => "rainy",
+                "partly-cloudy-day" => "partly-cloudy",
+                "thunderstorm" => "thunderstorm",
+                "clear-night" => "clear-night",
+                "partly-cloudy-night" => "cloudy-night",
+                _ => WeatherIcon
+            };
         }
 
         LoadWeatherImage();
